@@ -11,6 +11,10 @@ import ru.vasilev.domain.usecases.GetSortedCoursesUseCase
 import ru.vasilev.domain.usecases.UpdateFavoriteStatusUseCase
 import javax.inject.Inject
 
+/**
+ * ViewModel для главного экрана.
+ * Управляет состоянием загрузки данных и сортировкой курсов.
+ */
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getSortedCoursesUseCase: GetSortedCoursesUseCase,
@@ -20,26 +24,50 @@ class MainViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses: StateFlow<List<Course>> = _courses
 
+    // Состояние загрузки данных
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    // Флаг для отслеживания текущего порядка сортировки
+    // По умолчанию сортировка по убыванию (true = descending, false = ascending)
+    private var isSortedByDateDescending = true
+
     init {
         loadCourses()
     }
 
+    /**
+     * Загружает курсы.
+     * Отправляет флаг сортировки в UseCase для получения отсортированного списка.
+     */
     fun loadCourses() {
         viewModelScope.launch {
+            _isLoading.value = true // Показываем индикатор загрузки
             try {
-                val sortedCourses = getSortedCoursesUseCase()
+                // Вызываем use case с параметром сортировки
+                val sortedCourses = getSortedCoursesUseCase(isSortedByDateDescending)
                 _courses.value = sortedCourses
             } catch (e: Exception) {
-                // Обработка ошибок, например, Log.e("MainViewModel", "Error loading courses", e)
+                // Обработка ошибок
+                // Log.e("MainViewModel", "Error loading courses", e)
+            } finally {
+                _isLoading.value = false // Скрываем индикатор загрузки
             }
         }
+    }
+
+    /**
+     * Переключает порядок сортировки и перезагружает курсы.
+     */
+    fun toggleSort() {
+        isSortedByDateDescending = !isSortedByDateDescending
+        loadCourses()
     }
 
     fun onFavoriteClicked(course: Course) {
         viewModelScope.launch {
             val updatedStatus = !course.hasLike
             updateFavoriteStatusUseCase(course.id, updatedStatus)
-            // После обновления статуса в репозитории, обновляем данные в UI
             loadCourses()
         }
     }

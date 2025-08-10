@@ -36,6 +36,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         setupRecyclerView()
         setupObservers()
+        setupListeners()
     }
 
     private fun setupRecyclerView() {
@@ -46,9 +47,29 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
+            // Отслеживание списка курсов и обновление адаптера
             viewModel.courses.collectLatest { courses ->
                 adapter.submitList(courses)
             }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Отслеживание состояния загрузки и управление видимостью ProgressBar
+            viewModel.isLoading.collectLatest { isLoading ->
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                // Также можно скрыть RecyclerView, чтобы он не отображался до загрузки данных
+                binding.coursesRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+        }
+    }
+
+    /**
+     * Установка слушателя для кнопки сортировки.
+     * При нажатии вызывается метод toggleSort() в ViewModel.
+     */
+    private fun setupListeners() {
+        binding.filterButton.setOnClickListener {
+            viewModel.toggleSort()
         }
     }
 
