@@ -13,5 +13,9 @@
     <style name="Theme.Thousands_of_courses" parent="Base.Theme.Thousands_of_courses" />
 
 
-
+    <style name="BottomNavIndicator">
+        <item name="android:width">48dp</item>
+        <item name="android:height">32dp</item>
+        <item name="android:drawable">@drawable/bottom_nav_indicator_background</item>
+    </style>
 </resources>

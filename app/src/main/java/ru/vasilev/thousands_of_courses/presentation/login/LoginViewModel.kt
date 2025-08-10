@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,8 +14,8 @@ import kotlinx.coroutines.launch
 import ru.vasilev.domain.usecases.LoginUseCase
 import ru.vasilev.domain.usecases.ValidateEmailUseCase
 import ru.vasilev.thousands_of_courses.presentation.util.SingleEventFlow
-import kotlinx.coroutines.flow.asSharedFlow // Добавлен, чтобы работал SingleEventFlow
-import android.util.Log // Добавлен импорт для логирования
+import kotlinx.coroutines.flow.asSharedFlow
+import android.util.Log
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -63,6 +64,14 @@ class LoginViewModel @Inject constructor(
     fun onLoginClicked() {
         Log.d("LoginViewModel", "Кнопка входа была нажата. Email: ${email.value}, Пароль: <скрыт>")
         viewModelScope.launch {
+            // Временное изменение: симулируем успешный вход, так как API пока не готов.
+            // Когда API будет готов, вы сможете раскомментировать вызов loginUseCase.
+            delay(1000) // Имитируем задержку сети
+            Log.d("LoginViewModel", "Вход успешно симулирован. Переходим на главный экран.")
+            _navigateToMainScreen.trySend(Unit)
+
+            /*
+            // Оригинальный код для реального API:
             val result = loginUseCase(email.value, password.value)
             result.onSuccess {
                 Log.d("LoginViewModel", "Вход успешен. Переходим на главный экран.")
@@ -70,6 +79,7 @@ class LoginViewModel @Inject constructor(
             }.onFailure {
                 Log.e("LoginViewModel", "Ошибка входа: ${it.message}")
             }
+            */
         }
     }
 

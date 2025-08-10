@@ -87,8 +87,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 // Отслеживаем событие для перехода на главный экран
                 launch {
                     viewModel.navigateToMainScreen.collectLatest {
-                        // Здесь будет переход на главный экран
-                        // findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToMainFragment())
+                        // Раскомментируем строку для навигации
+                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToMainFragment())
                         Log.d("LoginFragment", "Получено событие для перехода на Главный экран.")
                     }
                 }

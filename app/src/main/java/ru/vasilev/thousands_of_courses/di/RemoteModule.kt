@@ -18,7 +18,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RemoteModule {
 
-    private const val BASE_URL = "https://your-api-url.com/"
+    /**
+     * Retrofit требует, чтобы baseUrl заканчивался на "/", даже если это просто заглушка.
+     * Мы используем заглушку, потому что у вас нет API.
+     * Полный URL для скачивания файла будет указан в интерфейсе CourseApi.
+     */
+    private const val BASE_URL = "https://placeholder-base-url.com/"
 
     @Provides
     @Singleton
