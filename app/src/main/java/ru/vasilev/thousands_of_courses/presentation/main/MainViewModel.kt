@@ -13,7 +13,8 @@ import javax.inject.Inject
 
 /**
  * ViewModel для главного экрана.
- * Управляет состоянием загрузки данных и сортировкой курсов.
+ * Управляет состоянием загрузки данных, сортировкой курсов
+ * и отображением избранных курсов. Использует локальное кеширование.
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -21,54 +22,92 @@ class MainViewModel @Inject constructor(
     private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase
 ) : ViewModel() {
 
+    private val _allCourses = MutableStateFlow<List<Course>>(emptyList())
+
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses: StateFlow<List<Course>> = _courses
 
-    // Состояние загрузки данных
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // Флаг для отслеживания текущего порядка сортировки
-    // По умолчанию сортировка по убыванию (true = descending, false = ascending)
+    private val _isShowingFavorites = MutableStateFlow(false)
+    val isShowingFavorites: StateFlow<Boolean> = _isShowingFavorites
+
     private var isSortedByDateDescending = true
 
     init {
-        loadCourses()
+        loadAllCourses()
     }
 
     /**
-     * Загружает курсы.
-     * Отправляет флаг сортировки в UseCase для получения отсортированного списка.
+     * Загружает все курсы один раз.
      */
-    fun loadCourses() {
+    private fun loadAllCourses() {
         viewModelScope.launch {
-            _isLoading.value = true // Показываем индикатор загрузки
+            _isLoading.value = true
             try {
-                // Вызываем use case с параметром сортировки
-                val sortedCourses = getSortedCoursesUseCase(isSortedByDateDescending)
-                _courses.value = sortedCourses
+                _allCourses.value = getSortedCoursesUseCase(isSortedByDateDescending, false)
+                updateCourseList()
             } catch (e: Exception) {
-                // Обработка ошибок
-                // Log.e("MainViewModel", "Error loading courses", e)
+
             } finally {
-                _isLoading.value = false // Скрываем индикатор загрузки
+                _isLoading.value = false
             }
         }
     }
 
     /**
-     * Переключает порядок сортировки и перезагружает курсы.
+     * Обновляет список курсов для UI, применяя фильтрацию и сортировку к локальному списку.
+     */
+    private fun updateCourseList() {
+        val sortedList = if (isSortedByDateDescending) {
+            _allCourses.value.sortedByDescending { it.publishDate }
+        } else {
+            _allCourses.value.sortedBy { it.publishDate }
+        }
+
+        val filteredList = if (_isShowingFavorites.value) {
+            sortedList.filter { it.hasLike }
+        } else {
+            sortedList
+        }
+        _courses.value = filteredList
+    }
+
+    /**
+     * Переключает порядок сортировки и обновляет список курсов.
      */
     fun toggleSort() {
         isSortedByDateDescending = !isSortedByDateDescending
-        loadCourses()
+        updateCourseList()
     }
 
+    /**
+     * Переключает режим отображения: все курсы или только избранные.
+     * Обновляет список курсов.
+     */
+    fun toggleFavoritesMode() {
+        _isShowingFavorites.value = !_isShowingFavorites.value
+        updateCourseList()
+    }
+
+    /**
+     * Обновляет статус избранного у курса.
+     * Обновляет как базу данных, так и локальный список.
+     */
     fun onFavoriteClicked(course: Course) {
         viewModelScope.launch {
             val updatedStatus = !course.hasLike
             updateFavoriteStatusUseCase(course.id, updatedStatus)
-            loadCourses()
+
+            _allCourses.value = _allCourses.value.map {
+                if (it.id == course.id) {
+                    it.copy(hasLike = updatedStatus)
+                } else {
+                    it
+                }
+            }
+            updateCourseList()
         }
     }
 }

@@ -34,7 +34,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         setupListeners()
         observeViewModel()
 
-        // Кнопки "Регистрация" и "Забыл пароль" по ТЗ неактивны
+
         binding.textViewRegister.isEnabled = false
         binding.textViewForgotPassword.isEnabled = false
     }
@@ -49,12 +49,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         binding.myButton.setOnClickListener {
-            // Проверяем, активна ли кнопка
+
             if (binding.myButton.isEnabled) {
-                // Если активна, вызываем метод ViewModel
+
                 viewModel.onLoginClicked()
             } else {
-                // Если неактивна, показываем Toast и пишем в лог
+
                 Toast.makeText(
                     context,
                     "Пожалуйста, заполните все поля корректно",
@@ -76,7 +76,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Отслеживаем состояние кнопки "Вход"
+
                 launch {
                     viewModel.isLoginButtonEnabled.collectLatest { isEnabled ->
                         binding.myButton.isEnabled = isEnabled
@@ -84,23 +84,22 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     }
                 }
 
-                // Отслеживаем событие для перехода на главный экран
                 launch {
                     viewModel.navigateToMainScreen.collectLatest {
-                        // Раскомментируем строку для навигации
+
                         findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToMainFragment())
                         Log.d("LoginFragment", "Получено событие для перехода на Главный экран.")
                     }
                 }
 
-                // Отслеживаем событие для перехода на сайт VK
+
                 launch {
                     viewModel.navigateToVk.collectLatest {
                         openUrlInBrowser("https://vk.com/")
                     }
                 }
 
-                // Отслеживаем событие для перехода на сайт OK
+
                 launch {
                     viewModel.navigateToOk.collectLatest {
                         openUrlInBrowser("https://ok.ru/")

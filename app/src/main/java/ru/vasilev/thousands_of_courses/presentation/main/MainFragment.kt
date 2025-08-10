@@ -40,36 +40,58 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     }
 
     private fun setupRecyclerView() {
-        adapter = CoursesAdapter()
+
+        adapter = CoursesAdapter { course ->
+            viewModel.onFavoriteClicked(course)
+        }
         binding.coursesRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.coursesRecyclerView.adapter = adapter
     }
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            // Отслеживание списка курсов и обновление адаптера
+
             viewModel.courses.collectLatest { courses ->
                 adapter.submitList(courses)
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // Отслеживание состояния загрузки и управление видимостью ProgressBar
+
             viewModel.isLoading.collectLatest { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-                // Также можно скрыть RecyclerView, чтобы он не отображался до загрузки данных
+
                 binding.coursesRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
         }
     }
 
     /**
-     * Установка слушателя для кнопки сортировки.
-     * При нажатии вызывается метод toggleSort() в ViewModel.
+     * Установка слушателей для кнопок сортировки и навигации.
      */
     private fun setupListeners() {
         binding.filterButton.setOnClickListener {
             viewModel.toggleSort()
+        }
+
+
+        binding.bottomNavigationBar.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.favorites_item -> {
+
+                    viewModel.toggleFavoritesMode()
+                    true
+                }
+
+                R.id.home_item -> {
+
+                    if (viewModel.isShowingFavorites.value) {
+                        viewModel.toggleFavoritesMode()
+                    }
+                    true
+                }
+                else -> false
+            }
         }
     }
 

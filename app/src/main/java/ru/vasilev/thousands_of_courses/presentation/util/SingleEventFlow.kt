@@ -5,10 +5,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-/**
- * A utility class for creating a shared flow that emits events only once.
- * This is useful for one-time events like navigation, showing a Toast, etc.
- */
+
 class SingleEventFlow<T> {
     private val _events = MutableSharedFlow<T>(
         extraBufferCapacity = 1,

@@ -12,26 +12,24 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.vasilev.thousands_of_courses.R
-import ru.vasilev.thousands_of_courses.databinding.FragmentOnboardingBinding // 1. Изменили класс биндинга
+import ru.vasilev.thousands_of_courses.databinding.FragmentOnboardingBinding
 
 @AndroidEntryPoint
-class OnboardingFragment : Fragment(R.layout.fragment_onboarding) { // 2. Указали новый файл макета
+class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
-    private var _binding: FragmentOnboardingBinding? = null // 1. Изменили класс биндинга
+    private var _binding: FragmentOnboardingBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: OnboardingViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentOnboardingBinding.bind(view) // 1. Изменили класс биндинга
+        _binding = FragmentOnboardingBinding.bind(view)
 
-        // Подключаем слушателя кликов к кнопке с ID 'myButton'
         binding.myButton.setOnClickListener {
             viewModel.onNavigateToLogin()
         }
 
-        // Запускаем сборку событий навигации
         collectNavigationEvents()
     }
 

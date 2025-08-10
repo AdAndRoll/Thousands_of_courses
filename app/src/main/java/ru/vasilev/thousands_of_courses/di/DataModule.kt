@@ -8,7 +8,7 @@ import dagger.hilt.components.SingletonComponent
 @Module(includes = [
     RemoteModule::class,
     DatabaseModule::class,
-    RepositoryModule::class // Добавляем наш модуль с привязкой репозиториев
+    RepositoryModule::class
 ])
 @InstallIn(SingletonComponent::class)
 object DataModule

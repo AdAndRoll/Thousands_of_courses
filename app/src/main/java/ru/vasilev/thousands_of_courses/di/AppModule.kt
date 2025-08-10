@@ -14,8 +14,6 @@ abstract class AppModule {
 
     /**
      * Предоставляет реализацию CourseRepository.
-     * Dagger Hilt теперь будет знать, что когда где-то запрашивается CourseRepository,
-     * нужно предоставить экземпляр CourseRepositoryImpl.
      *
      * @param courseRepositoryImpl Конкретная реализация репозитория.
      * @return Интерфейс репозитория.

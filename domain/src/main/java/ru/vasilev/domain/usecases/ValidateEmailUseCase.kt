@@ -8,12 +8,12 @@ class ValidateEmailUseCase {
             return false
         }
 
-        // Проверка на кириллицу
+
         if (email.contains(Regex("[а-яА-Я]"))) {
             return false
         }
 
-        // Проверка по маске "текст@текст.текст"
+
         val emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$"
         val pattern = Pattern.compile(emailRegex)
         return pattern.matcher(email).matches()

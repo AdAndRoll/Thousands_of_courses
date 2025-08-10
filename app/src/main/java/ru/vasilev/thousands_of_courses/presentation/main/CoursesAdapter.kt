@@ -2,19 +2,22 @@ package ru.vasilev.thousands_of_courses.presentation.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.vasilev.domain.model.Course
+import ru.vasilev.thousands_of_courses.R
 import ru.vasilev.thousands_of_courses.databinding.ItemCourseBinding
 
 /**
  * Адаптер для списка курсов.
- * Обновлен для добавления префиксов к цене и рейтингу,
- * а также для отображения описания курса с ограничением в 2 строки.
+ * Добавлена логика для кнопки избранного.
+ * @param onFavoriteClicked Лямбда-выражение, вызываемое при нажатии на кнопку избранного.
  */
-class CoursesAdapter :
-    ListAdapter<Course, CoursesAdapter.CourseViewHolder>(CourseDiffCallback) {
+class CoursesAdapter(
+    private val onFavoriteClicked: (Course) -> Unit
+) : ListAdapter<Course, CoursesAdapter.CourseViewHolder>(CourseDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CourseViewHolder {
         val binding = ItemCourseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -23,27 +26,33 @@ class CoursesAdapter :
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
         val course = getItem(position)
-        holder.bind(course)
+        holder.bind(course, onFavoriteClicked)
     }
 
     inner class CourseViewHolder(private val binding: ItemCourseBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(course: Course) {
-            // Устанавливаем заголовок курса
+        fun bind(course: Course, onFavoriteClicked: (Course) -> Unit) {
+
             binding.titleTextView.text = course.title
 
-            // Добавляем префикс "Цена:"
             binding.priceTextView.text = "Цена: ${course.price}"
 
-            // Добавляем префикс "Рейтинг:"
             binding.rateTextView.text = "Рейтинг: ${course.rate.toString()}"
 
-            // Устанавливаем описание курса
-            // Предполагается, что в XML-файле item_course.xml для descriptionTextView
-            // установлены атрибуты android:maxLines="2" и android:ellipsize="end"
-            // для обрезки текста, который не умещается в две строки.
             binding.descriptionTextView.text = course.text
+
+            val tintColor = if (course.hasLike) {
+                ContextCompat.getColor(binding.root.context, R.color.green)
+            } else {
+                ContextCompat.getColor(binding.root.context, R.color.hint_white)
+            }
+            binding.bookmarkIcon.setColorFilter(tintColor)
+
+
+            binding.bookmarkIcon.setOnClickListener {
+                onFavoriteClicked(course)
+            }
         }
     }
 

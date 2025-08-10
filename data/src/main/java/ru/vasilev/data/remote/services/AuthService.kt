@@ -8,7 +8,7 @@ import ru.vasilev.data.remote.dto.AuthResponse
 
 interface AuthService {
     @FormUrlEncoded
-    @POST("api/login") // URL-адрес вашего API для входа
+    @POST("api/login")
     suspend fun login(
         @Field("email") email: String,
         @Field("password") password: String

@@ -29,18 +29,18 @@ class LoginViewModel @Inject constructor(
     private val _password = MutableStateFlow("")
     val password = _password.asStateFlow()
 
-    // Событие для навигации на главный экран
+
     private val _navigateToMainScreen = SingleEventFlow<Unit>()
     val navigateToMainScreen = _navigateToMainScreen.asSharedFlow()
 
-    // События для навигации в браузер
+
     private val _navigateToVk = SingleEventFlow<Unit>()
     val navigateToVk = _navigateToVk.asSharedFlow()
 
     private val _navigateToOk = SingleEventFlow<Unit>()
     val navigateToOk = _navigateToOk.asSharedFlow()
 
-    // Состояние активности кнопки входа
+
     val isLoginButtonEnabled = combine(_email, _password) { email, password ->
         val isValid = validateEmailUseCase(email) && password.isNotBlank()
         Log.d("LoginViewModel", "Кнопка активна: $isValid (email: ${validateEmailUseCase(email)}, password: ${password.isNotBlank()})")
@@ -64,14 +64,12 @@ class LoginViewModel @Inject constructor(
     fun onLoginClicked() {
         Log.d("LoginViewModel", "Кнопка входа была нажата. Email: ${email.value}, Пароль: <скрыт>")
         viewModelScope.launch {
-            // Временное изменение: симулируем успешный вход, так как API пока не готов.
-            // Когда API будет готов, вы сможете раскомментировать вызов loginUseCase.
             delay(1000) // Имитируем задержку сети
             Log.d("LoginViewModel", "Вход успешно симулирован. Переходим на главный экран.")
             _navigateToMainScreen.trySend(Unit)
 
             /*
-            // Оригинальный код для реального API:
+            //код для реального API:
             val result = loginUseCase(email.value, password.value)
             result.onSuccess {
                 Log.d("LoginViewModel", "Вход успешен. Переходим на главный экран.")
